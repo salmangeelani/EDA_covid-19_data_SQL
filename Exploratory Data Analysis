@@ -1,0 +1,82 @@
+SELECT *
+FROM coviddeaths24;
+
+SELECT location, last_updated_date, total_cases, new_cases, total_deaths, population
+FROM coviddata2024 
+ORDER BY 1,2;
+
+-- Total Cases Vs Total Deaths
+
+SELECT location, last_updated_date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
+FROM coviddata2024
+ORDER BY total_deaths DESC;
+
+-- Percentage of Population who got covid
+
+SELECT location, last_updated_date, total_cases, (total_cases/population)*100
+FROM coviddata2024
+ORDER BY total_cases DESC;
+
+-- Countries with highest infection rate
+
+
+SELECT location, population, MAX(total_cases) AS HighestInfectionCount, MAX((total_cases/population)*100) AS PercentPopulationInfected
+FROM coviddata2024
+GROUP BY location,population
+ORDER BY PercentPopulationInfected DESC;
+
+
+-- Countries with highest death count
+
+SELECT location, MAX(total_deaths) as TotalDeathCount
+FROM coviddeaths24
+GROUP BY location,population
+ORDER BY TotalDeathCount DESC;
+
+-- New cases world wide and India as of August 2024
+
+SELECT location, last_updated_date, new_cases, total_cases
+FROM coviddeaths24
+ORDER by 3 DESC;
+
+SELECT location, last_updated_date, new_cases, total_cases
+FROM coviddeaths24
+WHERE location like '%india%';
+
+-- Vaccinations
+
+SELECT *
+FROM covidvaccinations24;
+
+
+ALTER TABLE covidvaccinations24 ADD continent VARCHAR(255);
+
+UPDATE covidvaccinations24 SET continent = ï»¿continent;
+
+ALTER TABLE covidvaccinations24 DROP column ï»¿continent;
+
+SELECT DISTINCT(continent), population, total_cases
+FROM covidvaccinations24;
+
+
+-- Total Population VS Vaccinations, Vaccination percentage
+
+SELECT dea.location, dea.population, dea.total_cases, vac.total_tests, vac.people_fully_vaccinated, vac.people_vaccinated, (vac.people_vaccinated/vac.population) * 100 AS VaccinatedPercentage
+FROM coviddeaths24 dea
+JOIN covidvaccinations24 vac
+	ON dea.location = vac.location
+WHERE vac.people_vaccinated != ''
+ORDER BY VaccinatedPercentage DESC;
+
+-- NEW VACCINATIONS
+
+SELECT location, new_tests, new_people_vaccinated_smoothed
+FROM covidvaccinations24
+WHERE new_people_vaccinated_smoothed != '';
+
+
+-- New cases vs New deaths Globally until August 24
+
+SELECT SUM(new_cases) as total_cases, SUM(new_deaths) as total_deaths, SUM(new_deaths)/SUM(new_cases) AS DeathPercentage
+FROM coviddeaths24
+ORDER BY 1,2;
